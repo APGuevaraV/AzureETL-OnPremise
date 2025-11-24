@@ -1,0 +1,179 @@
+{
+    "activities": [
+        {
+            "name": "Lookup1",
+            "type": "Lookup",
+            "dependsOn": [],
+            "policy": {
+                "timeout": "0.12:00:00",
+                "retry": 0,
+                "retryIntervalInSeconds": 30,
+                "secureOutput": false,
+                "secureInput": false
+            },
+            "userProperties": [],
+            "typeProperties": {
+                "source": {
+                    "type": "SqlServerSource",
+                    "sqlReaderQuery": {
+                        "value": "SELECT\ns.name as SchemaName,\nt.Name as TableName\nfrom sys.tables t\ninner join sys.schemas s \non s.schema_id = t.schema_id\nwhere s.name = 'SalesLT'",
+                        "type": "Expression"
+                    },
+                    "queryTimeout": "02:00:00",
+                    "partitionOption": "None"
+                },
+                "dataset": {
+                    "referenceName": "SqlServerOnPremise",
+                    "type": "DatasetReference",
+                    "parameters": {}
+                },
+                "firstRowOnly": false
+            }
+        },
+        {
+            "name": "ForEach1",
+            "type": "ForEach",
+            "dependsOn": [
+                {
+                    "activity": "Lookup1",
+                    "dependencyConditions": [
+                        "Succeeded"
+                    ]
+                }
+            ],
+            "userProperties": [],
+            "typeProperties": {
+                "items": {
+                    "value": "@activity('Lookup1').output.value",
+                    "type": "Expression"
+                },
+                "activities": [
+                    {
+                        "name": "Copy data1",
+                        "type": "Copy",
+                        "dependsOn": [],
+                        "policy": {
+                            "timeout": "0.12:00:00",
+                            "retry": 0,
+                            "retryIntervalInSeconds": 30,
+                            "secureOutput": false,
+                            "secureInput": false
+                        },
+                        "userProperties": [],
+                        "typeProperties": {
+                            "source": {
+                                "type": "SqlServerSource",
+                                "sqlReaderQuery": {
+                                    "value": "@{concat('SELECT * FROM ',item().SchemaName,'.',item().TableName)}",
+                                    "type": "Expression"
+                                },
+                                "queryTimeout": "02:00:00",
+                                "partitionOption": "None"
+                            },
+                            "sink": {
+                                "type": "ParquetSink",
+                                "storeSettings": {
+                                    "type": "AzureBlobFSWriteSettings"
+                                },
+                                "formatSettings": {
+                                    "type": "ParquetWriteSettings"
+                                }
+                            },
+                            "enableStaging": false,
+                            "translator": {
+                                "type": "TabularTranslator",
+                                "typeConversion": true,
+                                "typeConversionSettings": {
+                                    "allowDataTruncation": true,
+                                    "treatBooleanAsNumber": false
+                                }
+                            }
+                        },
+                        "inputs": [
+                            {
+                                "referenceName": "SqlServerOnPremise",
+                                "type": "DatasetReference",
+                                "parameters": {}
+                            }
+                        ],
+                        "outputs": [
+                            {
+                                "referenceName": "ds_parquet",
+                                "type": "DatasetReference",
+                                "parameters": {
+                                    "schemaname": {
+                                        "value": "@item().SchemaName",
+                                        "type": "Expression"
+                                    },
+                                    "tablename": {
+                                        "value": "@item().TableName",
+                                        "type": "Expression"
+                                    }
+                                }
+                            }
+                        ]
+                    }
+                ]
+            }
+        },
+        {
+            "name": "Bronze_to_Silver",
+            "type": "DatabricksNotebook",
+            "dependsOn": [
+                {
+                    "activity": "ForEach1",
+                    "dependencyConditions": [
+                        "Succeeded"
+                    ]
+                }
+            ],
+            "policy": {
+                "timeout": "0.12:00:00",
+                "retry": 0,
+                "retryIntervalInSeconds": 30,
+                "secureOutput": false,
+                "secureInput": false
+            },
+            "userProperties": [],
+            "typeProperties": {
+                "notebookPath": "/Users/ana.guevara.valladares_gmail.com#ext#@anaguevaravalladaresgmail.onmicrosoft.com/AdventureWorks/bronze_to_Silver"
+            },
+            "linkedServiceName": {
+                "referenceName": "ls_databricks",
+                "type": "LinkedServiceReference"
+            }
+        },
+        {
+            "name": "Silver_to_Golden",
+            "type": "DatabricksNotebook",
+            "dependsOn": [
+                {
+                    "activity": "Bronze_to_Silver",
+                    "dependencyConditions": [
+                        "Succeeded"
+                    ]
+                }
+            ],
+            "policy": {
+                "timeout": "0.12:00:00",
+                "retry": 0,
+                "retryIntervalInSeconds": 30,
+                "secureOutput": false,
+                "secureInput": false
+            },
+            "userProperties": [],
+            "typeProperties": {
+                "notebookPath": "/Users/ana.guevara.valladares_gmail.com#ext#@anaguevaravalladaresgmail.onmicrosoft.com/AdventureWorks/Silver_to_Golden"
+            },
+            "linkedServiceName": {
+                "referenceName": "ls_databricks",
+                "type": "LinkedServiceReference"
+            }
+        }
+    ],
+    "policy": {
+        "elapsedTimeMetric": {}
+    },
+    "annotations": [],
+    "lastPublishTime": "2025-11-21T17:52:45Z"
+}

@@ -1,0 +1,14 @@
+{
+    "name": "[concat(parameters('factoryName'), '/ls_adlssmart1211')]",
+    "type": "Microsoft.DataFactory/factories/linkedServices",
+    "apiVersion": "2018-06-01",
+    "properties": {
+        "annotations": [],
+        "type": "AzureBlobFS",
+        "typeProperties": {
+            "url": "[parameters('ls_adlssmart1211_properties_typeProperties_url')]",
+            "accountKey": "***REMOVED***"
+        }
+    },
+    "dependsOn": []
+}

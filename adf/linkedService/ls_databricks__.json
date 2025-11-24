@@ -1,0 +1,24 @@
+{
+    "name": "[concat(parameters('factoryName'), '/ls_databricks')]",
+    "type": "Microsoft.DataFactory/factories/linkedServices",
+    "apiVersion": "2018-06-01",
+    "properties": {
+        "annotations": [],
+        "type": "AzureDatabricks",
+        "typeProperties": {
+            "domain": "https://adb-3068764255795482.2.azuredatabricks.net",
+            "accessToken": {
+                "type": "AzureKeyVaultSecret",
+                "store": {
+                    "referenceName": "ls_akv",
+                    "type": "LinkedServiceReference"
+                },
+                "secretName": "dbtoken"
+            },
+            "existingClusterId": "[parameters('ls_databricks_properties_typeProperties_existingClusterId')]"
+        }
+    },
+    "dependsOn": [
+        "[concat(variables('factoryId'), '/linkedServices/ls_akv')]"
+    ]
+}

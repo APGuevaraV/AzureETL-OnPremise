@@ -1,0 +1,23 @@
+{
+    "annotations": [],
+    "runtimeState": "Stopped",
+    "pipelines": [
+        {
+            "pipelineReference": {
+                "referenceName": "CopyAllTables",
+                "type": "PipelineReference"
+            },
+            "parameters": {}
+        }
+    ],
+    "type": "ScheduleTrigger",
+    "typeProperties": {
+        "recurrence": {
+            "frequency": "Day",
+            "interval": 1,
+            "startTime": "2025-11-21T18:11:00",
+            "timeZone": "SA Pacific Standard Time",
+            "schedule": {}
+        }
+    }
+}
