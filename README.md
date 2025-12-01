@@ -1,4 +1,4 @@
-#  Proyecto ETL en Azure con Arquitectura Medallion
+#  Proyecto ETL en Azure con Medallion Architecture
 
 Este proyecto implementa un flujo completo de ingestión, transformación y consumo de datos utilizando servicios de Azure. La solución sigue la arquitectura **Medallón** (Bronze → Silver → Golden) y permite mover datos desde un entorno On-Premise hasta un dashboard final en Power BI.
 
@@ -38,8 +38,7 @@ En **Azure Databricks** se desarrolló un notebook dedicado al procesamiento ini
 
 Acciones realizadas:
 - Lectura de cada tabla Parquet desde Bronze
-- Limpieza de nulos y tipificación correcta
-- Normalización básica
+- Formato de campos fecha
 - Escritura tabla por tabla en:
   - **ADLS Silver**
   - Formato **Delta Lake**
